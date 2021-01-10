@@ -30,10 +30,18 @@ const {startHttpServer} = createHttpServer({
       method: "GET",
       path: "/v1/ping",
       middlewares: [],
-      response: () => ({status: "OK", headers: {}, body: "ping"})
+      response: () => ({
+        status: "OK",
+        headers: {},
+        body: "ping"
+      })
     }
   ],
-  fallback: {status: "NOT_FOUND", headers: {}, body: "Not found"}
+  fallback: {
+    status: "NOT_FOUND",
+    headers: {},
+    body: "Not found"
+  }
 });
 
 const main = async () => {
