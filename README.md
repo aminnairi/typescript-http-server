@@ -45,7 +45,10 @@ const {startHttpServer} = createHttpServer({
 });
 
 const main = async () => {
-  await startHttpServer({port: 8000, host: "127.0.0.1"});
+  await startHttpServer({
+    port: 8000,
+    host: "127.0.0.1"
+  });
 
   console.log("Http server started on http://127.0.0.1:8000.");
 };
@@ -154,7 +157,10 @@ const {startHttpServer} = createHttpServer<State>({
 });
 
 const main = async () => {
-  await startHttpServer({port: 8000, host: "127.0.0.1"});
+  await startHttpServer({
+    port: 8000,
+    host: "127.0.0.1"
+  });
 
   console.log("Http server started on http://127.0.0.1:8000.");
 };
