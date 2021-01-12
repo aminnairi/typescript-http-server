@@ -1,3 +1,4 @@
+import {URL} from "url";
 import {createServer, IncomingMessage} from "http";
 
 type HttpServerRouteResponseStatus = "CONTINUE" | "SWITCHING_PROTOCOLS" | "PROCESSING" | "EARLY_HINTS" | "OK" | "CREATED" | "ACCEPTED" | "NON_AUTHORITATIVE_INFORMATION" | "NO_CONTENT" | "RESET_CONTENT" | "PARTIAL_CONTENT" | "MULTI_STATUS" | "ALREADY_REPORTED" | "IM_USED" | "MULTIPLE_CHOICE" | "MOVED_PERMANENTLY" | "FOUND" | "SEE_OTHER" | "NOT_MODIFIED" | "USE_PROXY" | "UNUSED" | "TEMPORARY_REDIRECT" | "PERMANENT_REDIRECT" | "BAD_REQUEST" | "UNAUTHORIZED" | "PAYMENT_REQUIRED" | "FORBIDDEN" | "NOT_FOUND" | "METHOD_NOT_ALLOWED" | "NOT_ACCEPTABLE" | "PROXY_AUTHENTICATION_REQUIRED" | "REQUEST_TIMEOUT" | "CONFLICT" | "GONE" | "LENGTH_REQUIRED" | "PRECONDITION_FAILED" | "PAYLOAD_TOO_LARGE" | "URI_TOO_LONG" | "UNSUPPORTED_MEDIA_TYPE" | "RANGE_NOT_SATISFIABLE" | "EXPECTATION_FAILED" | "I_AM_A_TEAPOT" | "MISDIRECTED_REQUEST" | "UNPROCESSABLE_ENTITY" | "LOCKED" | "FAILED_DEPENDENCY" | "TOO_EARLY" | "UPGRADE_REQUIRED" | "PRECONDITION_REQUIRED" | "TOO_MANY_REQUESTS" | "REQUEST_HEADER_FIELDS_TOO_LARGE" | "UNAVAILABLE_FOR_LEGAL_REASONS" | "INTERVAL_SERVER_ERROR" | "NOT_IMPLEMENTED" | "BAD_GATEWAY" | "SERVICE_UNAVAILABLE" | "GATEWAY_TIMEOUT" | "HTTP_VERSION_NOT_SUPPORTED" | "VARIANT_ALSO_NEGOCIATES" | "INSUFFICIENT_STORAGE" | "LOOP_DETECTED" | "NOT_EXTENDED" | "NETWORK_AUTHENTICATION_REQUIRED";
@@ -8,6 +9,8 @@ interface HttpServerRouteResponseOptions<HttpServerState> {
     request: Readonly<IncomingMessage>;
     state: Readonly<HttpServerState>;
     parameters: Readonly<Record<string, string>>;
+    fields: Readonly<Record<string, string>>;
+    hash: Readonly<string>;
 }
 
 interface HttpServerRouteResponseHeaders {
@@ -31,6 +34,9 @@ interface HttpServerRoute<HttpServerState> {
 interface HttpServerMiddlewareResponseOptions<HttpServerState> {
     request: Readonly<IncomingMessage>;
     state: Readonly<HttpServerState>;
+    parameters: Readonly<Record<string, string>>;
+    fields: Readonly<Record<string, string>>;
+    hash: Readonly<string>;
 }
 
 interface HttpServerMiddlewareResponseNext<HttpServerState> {
@@ -173,31 +179,24 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
     const startHttpServer = (startHttpServerOptions: Readonly<StartHttpServerOptions>) => {
         return new Promise<void>(resolve => {
             createServer(async (request, response) => {
-                let state = httpServerOptions.initialState;
-
-                for (const middleware of httpServerOptions.middlewares) {
-                    const middlewareResponse = await middleware.response({request, state});
-
-                    if (!middlewareResponse.next) {
-                        return response.writeHead(HTTP_STATUS[middlewareResponse.status], middlewareResponse.headers).end(middlewareResponse.body);
-                    }
-
-                    state = middlewareResponse.state;
-                }
-
                 const foundRoute = httpServerOptions.routes.find(route => {
                     if (typeof request.url === "undefined") {
                         return false;
                     }
 
                     const requestUrl = new URL(`http://${request.headers.host || "localhost"}${request.url}`);
-
                     return route.method === request.method && isPathMatching(route.path, requestUrl.pathname);
                 });
 
                 if (foundRoute) {
-                    for (const middleware of foundRoute.middlewares) {
-                        const middlewareResponse = await middleware.response({request, state});
+                    let state = httpServerOptions.initialState;
+                    const requestUrl = new URL(`http://${request.headers.host || "127.0.0.1"}${request.url}`);
+                    const parameters = getPathParameters(foundRoute.path, requestUrl.pathname);
+                    const fields = Object.fromEntries([...requestUrl.searchParams]);
+                    const hash = requestUrl.hash;
+
+                    for (const middleware of [...httpServerOptions.middlewares, ...foundRoute.middlewares]) {
+                        const middlewareResponse = await middleware.response({request, state, parameters, fields, hash});
 
                         if (!middlewareResponse.next) {
                             return response.writeHead(HTTP_STATUS[middlewareResponse.status]).end(middlewareResponse.body);
@@ -210,11 +209,7 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
                         return response.writeHead(404).end("Not found");
                     }
 
-                    const requestUrl = new URL(`http://${request.headers.host || "localhost"}${request.url}`);
-
-                    const parameters = getPathParameters(foundRoute.path, requestUrl.pathname);
-                    const foundRouteResponse = await foundRoute.response({request, state, parameters});
-
+                    const foundRouteResponse = await foundRoute.response({request, state, parameters, fields, hash});
                     return response.writeHead(HTTP_STATUS[foundRouteResponse.status], foundRouteResponse.headers).end(foundRouteResponse.body);
                 }
 
