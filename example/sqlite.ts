@@ -55,13 +55,13 @@ const main = async () => {
         }
       }
     ],
-    fallback: {
+    fallback: () => ({
       status: "NOT_FOUND",
       headers: {
         "Content-Type": "text/plain"
       },
       body: "Not found"
-    }
+    })
   });
 
   await startHttpServer({

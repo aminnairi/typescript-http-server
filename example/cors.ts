@@ -35,13 +35,13 @@ const {startHttpServer} = createHttpServer({
       })
     }
   ],
-  fallback: {
+  fallback: () => ({
     status: "NOT_FOUND",
     headers: {
       "Content-Type": "text/plain"
     },
     body: "Not found"
-  }
+  })
 });
 
 const main = async () => {

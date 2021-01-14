@@ -48,13 +48,13 @@ const {startHttpServer} = createHttpServer({
       })
     }
   ],
-  fallback: {
+  fallback: () => ({
     status: "NOT_FOUND",
     headers: {
       "Content-Type": "text/plain"
     },
     body: "Not found"
-  }
+  })
 });
 
 const main = async () => {
@@ -63,7 +63,7 @@ const main = async () => {
     host: "127.0.0.1"
   });
 
-  console.log("http://localhost:8000");
+  console.log("Server started on http://localhost:8000");
 };
 
 main();
