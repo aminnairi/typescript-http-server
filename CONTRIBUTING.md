@@ -43,6 +43,20 @@ Where `branch-name` is the name of the branch to create. Choose a branch name th
 $ make install
 ```
 
+## NPM
+
+```console
+$ docker-compose run --rm npm COMMAND
+```
+
+Where `COMMAND` is the command to run with NPM.
+
+## NPX
+
+```console
+$ docker-compose run --rm --service-ports npx ts-node example/simple.ts
+```
+
 ## Update
 
 Update the project until the issue is resolved.
