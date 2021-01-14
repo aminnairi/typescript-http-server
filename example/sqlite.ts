@@ -64,12 +64,15 @@ const main = async () => {
     })
   });
 
+  const port = 8000;
+  const host = "127.0.0.1";
+
   await startHttpServer({
-    port: 8000,
-    host: "127.0.0.1"
+    port,
+    host
   });
 
-  console.log("Server start on http://127.0.0.1:8000");
+  console.log(`Server started on http://${host}:${port}`);
 };
 
-main();
+main().catch(console.error);

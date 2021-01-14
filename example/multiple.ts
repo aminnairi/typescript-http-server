@@ -30,13 +30,18 @@ const {startHttpServer} = createHttpServer({
 });
 
 const main = async () => {
+  const port1 = 7000;
+  const port2 = 8000;
+  const port3 = 9000;
+  const host = "127.0.0.1";
+
   await Promise.all([
-    startHttpServer({port: 7000, host: "127.0.0.1"}),
-    startHttpServer({port: 8000, host: "127.0.0.1"}),
-    startHttpServer({port: 9000, host: "127.0.0.1"})
+    startHttpServer({port: port1, host}),
+    startHttpServer({port: port2, host}),
+    startHttpServer({port: port3, host})
   ]);
 
-  console.log("Servers started on ports 7000, 8000 & 9000");
+  console.log(`Server started on ports ${port1}, ${port2} & ${port3}`);
 };
 
-main();
+main().catch(console.error);
