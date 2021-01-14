@@ -122,7 +122,7 @@ interface HttpServerOptions<HttpServerState> {
   initialState: HttpServerState;
   middlewares: HttpServerMiddleware<HttpServerState>[];
   routes: HttpServerRoute<HttpServerState>[];
-  fallback: HttpServerRouteResponse;
+  fallback: (options: Readonly<HttpServerRouteResponseOptions<HttpServerState>>) => MaybePromise<HttpServerRouteResponse>;
 }
 
 interface StartHttpServerOptions {
@@ -244,6 +244,8 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
   const startHttpServer = (startHttpServerOptions: Readonly<StartHttpServerOptions>) => {
     return new Promise<void>(resolve => {
       createServer(async (request, response) => {
+        const fallbackRoute = {name: "Not found", version: 1, path: request.url || "", method: "GET", middlewares: [], response: httpServerOptions.fallback};
+
         const foundRoute = httpServerOptions.routes.find(route => {
           if (typeof request.url === "undefined") {
             return false;
@@ -251,34 +253,30 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
 
           const requestUrl = new URL(`http://${request.headers.host || "localhost"}${request.url}`);
           return route.method === request.method && isPathMatching(join(`/v${route.version}/`, route.path), requestUrl.pathname);
-        });
+        }) || fallbackRoute;
+        
+        let state = httpServerOptions.initialState;
+        const requestUrl = new URL(`http://${request.headers.host || "127.0.0.1"}${request.url}`);
+        const parameters = getPathParameters(join(`/v${foundRoute.version}/`, foundRoute.path), requestUrl.pathname);
+        const fields = Object.fromEntries([...requestUrl.searchParams]);
+        const hash = requestUrl.hash;
 
-        if (foundRoute) {
-          let state = httpServerOptions.initialState;
-          const requestUrl = new URL(`http://${request.headers.host || "127.0.0.1"}${request.url}`);
-          const parameters = getPathParameters(join(`/v${foundRoute.version}/`, foundRoute.path), requestUrl.pathname);
-          const fields = Object.fromEntries([...requestUrl.searchParams]);
-          const hash = requestUrl.hash;
+        for (const middleware of [...httpServerOptions.middlewares, ...foundRoute.middlewares]) {
+          const middlewareResponse = await middleware.response({request, state, parameters, fields, hash});
 
-          for (const middleware of [...httpServerOptions.middlewares, ...foundRoute.middlewares]) {
-            const middlewareResponse = await middleware.response({request, state, parameters, fields, hash});
-
-            if (!middlewareResponse.next) {
-              return response.writeHead(HTTP_STATUS[middlewareResponse.status]).end(middlewareResponse.body);
-            }
-
-            state = middlewareResponse.state;
+          if (!middlewareResponse.next) {
+            return response.writeHead(HTTP_STATUS[middlewareResponse.status]).end(middlewareResponse.body);
           }
 
-          if (typeof request.url === "undefined") {
-            return response.writeHead(404).end("Not found");
-          }
-
-          const foundRouteResponse = await foundRoute.response({request, state, parameters, fields, hash});
-          return response.writeHead(HTTP_STATUS[foundRouteResponse.status], foundRouteResponse.headers).end(foundRouteResponse.body);
+          state = middlewareResponse.state;
         }
 
-        return response.writeHead(HTTP_STATUS[httpServerOptions.fallback.status], httpServerOptions.fallback.headers).end(httpServerOptions.fallback.body);
+        if (typeof request.url === "undefined") {
+          return response.writeHead(404).end("Not found");
+        }
+
+        const foundRouteResponse = await foundRoute.response({request, state, parameters, fields, hash});
+        return response.writeHead(HTTP_STATUS[foundRouteResponse.status], foundRouteResponse.headers).end(foundRouteResponse.body);
       }).listen(startHttpServerOptions.port, startHttpServerOptions.host, () => {
         resolve();
       });
