@@ -6,6 +6,7 @@ Typescript library for declaratively creating a HTTP server.
 
 - [Node.js](https://nodejs.org/en/)
 - [NPM](https://www.npmjs.com/)
+- [TypeScript](https://www.typescriptlang.org/)
 
 ## Installation
 
