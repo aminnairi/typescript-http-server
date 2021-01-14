@@ -2,3 +2,4 @@
 /.config
 /.npm
 /.cache
+/database.db
