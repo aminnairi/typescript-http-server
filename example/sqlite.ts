@@ -20,6 +20,7 @@ const main = async () => {
     middlewares: [],
     routes: [
       {
+        // http://127.0.0.1:8000/v1/test
         version: 1,
         name: "Test",
         path: "/test",
