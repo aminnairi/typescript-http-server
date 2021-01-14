@@ -19,6 +19,7 @@ const {startHttpServer} = createHttpServer({
   ],
   routes: [
     {
+      // http://127.0.0.1:8000/v1/ping
       version: 1,
       path: "/ping",
       name: "Ping",
