@@ -6,12 +6,11 @@ Typescript library for declaratively creating a HTTP server.
 
 - [Node.js](https://nodejs.org/en/)
 - [NPM](https://www.npmjs.com/)
-- [TypeScript](https://www.typescriptlang.org/)
 
 ## Installation
 
 ```console
-$ npm install @aminnairi/typescript-http-server@0.1.0
+$ npm install typescript @types/node @aminnairi/typescript-http-server
 ```
 
 ## Examples
