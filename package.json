@@ -21,8 +21,8 @@
     "@types/node": "^14.0.0"
   },
   "devDependencies": {
-    "sqlite": "^4.0.19",
-    "sqlite3": "^5.0.1",
+    "sqlite": "4.0.19",
+    "sqlite3": "5.0.1",
     "ts-node": "9.1.1"
   }
 }
