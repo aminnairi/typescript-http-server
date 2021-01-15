@@ -1,6 +1,18 @@
-import {createHttpServer} from "../main";
+import {createHttpServer} from "@aminnairi/typescript-http-server";
 import {promises as fs} from "fs";
-import {resolve} from "path";
+import {resolve, extname} from "path";
+
+const extensionMimeTypes: Record<string, string> = {
+  ".ts": "text/plain",
+  ".js": "application/javascript",
+  ".json": "application/json",
+  ".html": "text/html",
+  ".css": "text/css",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+  ".jpeg": "image/jpeg",
+  ".svg": "image/svg+xml"
+};
 
 const {startHttpServer} = createHttpServer({
   initialState: null,
@@ -19,13 +31,15 @@ const {startHttpServer} = createHttpServer({
       response: async ({parameters: {file}}) => {
         try {
           const fileName = file || "";
+          const fileExtension = extname(fileName);
           const filePath = resolve(__dirname, fileName);
           const fileContent = await fs.readFile(filePath);
+          const fileMimeType = extensionMimeTypes[fileExtension] ?? "text/plain";
 
           return {
             status: "OK",
             headers: {
-              "Content-Type": "text/plain"
+              "Content-Type": fileMimeType,
             },
             body: fileContent.toString()
           };
