@@ -95,6 +95,7 @@ interface HttpServerRoute<HttpServerState> {
   method: "GET" | "HEAD" | "POST" | "PUT" | "DELETE" | "CONNECT" | "OPTIONS" | "TRACE" | "PATCH";
   middlewares: HttpServerMiddleware<HttpServerState>[];
   response: (options: Readonly<HttpServerRouteResponseOptions<HttpServerState>>) => MaybePromise<HttpServerRouteResponse>;
+  children: Array<HttpServerRoute<HttpServerState>>;
 }
 
 interface HttpServerMiddlewareResponseOptions<HttpServerState> {
@@ -241,13 +242,33 @@ const HTTP_STATUS: Record<HttpServerRouteResponseStatus, number> = {
   NETWORK_AUTHENTICATION_REQUIRED: 511
 };
 
+const allRoutes = <HttpServerState>(routes: Array<HttpServerRoute<HttpServerState>>) => {
+  return routes.reduce((previousRoutes: Array<HttpServerRoute<HttpServerState>>, route: HttpServerRoute<HttpServerState>): Array<HttpServerRoute<HttpServerState>> => {
+    if (route.children.length > 0) {
+      return [
+        ...previousRoutes,
+        route,
+        ...allRoutes(route.children.map(child => {
+          return {
+            ...child,
+            middlewares: [...route.middlewares, ...child.middlewares],
+            path: join(route.path, child.path)
+          };
+        }))
+      ];
+    }
+
+    return [...previousRoutes, route];
+  }, [] as Array<HttpServerRoute<HttpServerState>>);
+};
+
 export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<HttpServerOptions<HttpServerState>>) => {
   const startHttpServer = (startHttpServerOptions: Readonly<StartHttpServerOptions>) => {
     return new Promise<void>(resolve => {
       createServer(async (request, response) => {
         const fallbackRoute = {prefix: "", name: "Not found", version: 0, path: request.url || "", method: "GET", middlewares: [], response: httpServerOptions.fallback};
 
-        const foundRoute = httpServerOptions.routes.find(route => {
+        const foundRoute = allRoutes(httpServerOptions.routes).find(route => {
           if (typeof request.url === "undefined") {
             return false;
           }
