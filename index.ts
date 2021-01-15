@@ -151,7 +151,7 @@ const trimRight = (character: string, text: string) => {
 const matchPath = (pathPattern: string, path: string) => {
   const SEPARATOR = "/";
   const pathNormalized = `${SEPARATOR}${trimRight(SEPARATOR, trimLeft(SEPARATOR, path))}`;
-  const pathPatternNormalized = `^${SEPARATOR}${trimRight(SEPARATOR, trimLeft(SEPARATOR, pathPattern.replace(/:(\w+)/, "(?<$1>[^\/]*)")))}$`;
+  const pathPatternNormalized = `^${SEPARATOR}${trimRight(SEPARATOR, trimLeft(SEPARATOR, pathPattern.replace(/:(\w+)/gu, "(?<$1>[^\/]*)")))}$`;
   const pattern = new RegExp(pathPatternNormalized, "gu");
   const result = pattern.exec(pathNormalized);
 
@@ -268,7 +268,9 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
       createServer(async (request, response) => {
         const fallbackRoute = {prefix: "", name: "Not found", version: 0, path: request.url || "", method: "GET", middlewares: [], response: httpServerOptions.fallback};
 
-        const foundRoute = allRoutes(httpServerOptions.routes).find(route => {
+        const flattenRoutes = allRoutes(httpServerOptions.routes);
+
+        const foundRoute = flattenRoutes.find(route => {
           if (typeof request.url === "undefined") {
             return false;
           }
