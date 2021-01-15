@@ -6,8 +6,8 @@ const {startHttpServer} = createHttpServer({
   middlewares: [
     {
       name: "Logger",
-      response: async ({request, parameters, fields, hash, state}) => {
-        await fs.appendFile("logs.txt", `[LOGGER]: request = ${request.url}, parameters = ${JSON.stringify(parameters)}, fields = ${JSON.stringify(fields)}, hash = ${JSON.stringify(hash)}, state = ${JSON.stringify(state)}\n`);
+      response: async ({request, parameters, queries, hash, state}) => {
+        await fs.appendFile("logs.txt", `[LOGGER]: request = ${request.url}, parameters = ${JSON.stringify(parameters)}, queries = ${JSON.stringify(queries)}, hash = ${JSON.stringify(hash)}, state = ${JSON.stringify(state)}\n`);
 
         return {
           next: true,
@@ -20,6 +20,7 @@ const {startHttpServer} = createHttpServer({
     {
       // http://127.0.0.1:8000/v1/ping
       name: "Ping",
+      prefix: "",
       version: 1,
       path: "/ping",
       method: "GET",
@@ -35,6 +36,7 @@ const {startHttpServer} = createHttpServer({
     {
       // http://127.0.0.1:8000/v1/foo
       name: "Foo",
+      prefix: "",
       version: 1,
       path: "/foo",
       method: "GET",
