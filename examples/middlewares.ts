@@ -34,6 +34,7 @@ const {startHttpServer} = createHttpServer({
       version: 1,
       path: "/number/lucky",
       method: "GET",
+      children: [],
       middlewares: [
         {
           name: "Lucky number generator",

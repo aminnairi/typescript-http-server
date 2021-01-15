@@ -26,6 +26,7 @@ const {startHttpServer} = createHttpServer({
       name: "Ping",
       method: "GET",
       middlewares: [],
+      children: [],
       response: ({state: {acceptedOrigin}}) => ({
         status: "OK",
         headers: {

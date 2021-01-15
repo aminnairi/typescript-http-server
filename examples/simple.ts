@@ -12,6 +12,7 @@ const {startHttpServer} = createHttpServer({
       path: "/ping",
       method: "GET",
       middlewares: [],
+      children: [],
       response: () => ({
         status: "OK",
         headers: {
@@ -31,7 +32,7 @@ const {startHttpServer} = createHttpServer({
 });
 
 const main = async () => {
-  const port = 8000;
+  const port = 8080;
   const host = "127.0.0.1";
 
   await startHttpServer({

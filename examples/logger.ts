@@ -25,6 +25,7 @@ const {startHttpServer} = createHttpServer({
       path: "/ping",
       method: "GET",
       middlewares: [],
+      children: [],
       response: () => ({
         status: "OK",
         headers: {
@@ -41,6 +42,7 @@ const {startHttpServer} = createHttpServer({
       path: "/foo",
       method: "GET",
       middlewares: [],
+      children: [],
       response: () => ({
         status: "OK",
         headers: {

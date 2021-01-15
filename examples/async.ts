@@ -25,6 +25,7 @@ const {startHttpServer} = createHttpServer({
       version: 1,
       path: "/ping",
       method: "GET",
+      children: [],
       middlewares: [
         {
           name: "More delay",

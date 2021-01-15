@@ -12,6 +12,7 @@ const {startHttpServer} = createHttpServer({
       path: "/users",
       method: "GET",
       middlewares: [],
+      children: [],
       response: () => ({
         status: "OK",
         headers: {
@@ -63,6 +64,7 @@ const {startHttpServer} = createHttpServer({
       version: 1,
       path: "/users",
       method: "GET",
+      children: [],
       middlewares: [
         {
           name: "Accept",

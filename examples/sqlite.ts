@@ -27,6 +27,7 @@ const main = async () => {
         path: "/test",
         method: "GET",
         middlewares: [],
+        children: [],
         response: async () => {
           try {
             const result = await database.all("SELECT * FROM test;");

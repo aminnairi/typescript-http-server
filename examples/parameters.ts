@@ -14,6 +14,7 @@ const {startHttpServer} = createHttpServer({
       path: "/echo/:anything",
       method: "GET",
       middlewares: [],
+      children: [],
       response: ({parameters: {anything}}) => ({
         status: "OK",
         headers: {

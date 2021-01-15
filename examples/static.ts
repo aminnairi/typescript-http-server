@@ -28,6 +28,7 @@ const {startHttpServer} = createHttpServer({
       path: ":file",
       method: "GET",
       middlewares: [],
+      children: [],
       response: async ({parameters: {file}}) => {
         try {
           const fileName = file || "";
