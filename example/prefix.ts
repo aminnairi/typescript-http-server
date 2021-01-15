@@ -1,4 +1,4 @@
-import {createHttpServer} from "../main";
+import {createHttpServer} from "@aminnairi/typescript-http-server";
 
 const {startHttpServer} = createHttpServer({
   initialState: null,
