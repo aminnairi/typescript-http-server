@@ -10,7 +10,7 @@ Typescript library for declaratively creating a HTTP server.
 ## Installation
 
 ```console
-$ npm install typescript @types/node ts-node
+$ npm install typescript @types/node ts-node tslib
 $ git clone https://github.com/aminnairi/typescript-http-server typescript_modules/aminnairi/typescript-http-server
 ```
 
