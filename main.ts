@@ -73,7 +73,7 @@ interface HttpServerRouteResponseOptions<HttpServerState> {
   request: Readonly<IncomingMessage>;
   state: Readonly<HttpServerState>;
   parameters: Readonly<Record<string, string>>;
-  fields: Readonly<Record<string, string>>;
+  queries: Readonly<Record<string, string>>;
   hash: Readonly<string>;
 }
 
@@ -88,6 +88,7 @@ interface HttpServerRouteResponse {
 }
 
 interface HttpServerRoute<HttpServerState> {
+  prefix: string;
   version: number;
   name: string;
   path: string;
@@ -100,7 +101,7 @@ interface HttpServerMiddlewareResponseOptions<HttpServerState> {
   request: Readonly<IncomingMessage>;
   state: Readonly<HttpServerState>;
   parameters: Readonly<Record<string, string>>;
-  fields: Readonly<Record<string, string>>;
+  queries: Readonly<Record<string, string>>;
   hash: Readonly<string>;
 }
 
@@ -244,7 +245,7 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
   const startHttpServer = (startHttpServerOptions: Readonly<StartHttpServerOptions>) => {
     return new Promise<void>(resolve => {
       createServer(async (request, response) => {
-        const fallbackRoute = {name: "Not found", version: 1, path: request.url || "", method: "GET", middlewares: [], response: httpServerOptions.fallback};
+        const fallbackRoute = {prefix: "", name: "Not found", version: 0, path: request.url || "", method: "GET", middlewares: [], response: httpServerOptions.fallback};
 
         const foundRoute = httpServerOptions.routes.find(route => {
           if (typeof request.url === "undefined") {
@@ -252,17 +253,17 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
           }
 
           const requestUrl = new URL(`http://${request.headers.host || "localhost"}${request.url}`);
-          return route.method === request.method && isPathMatching(join(`/v${route.version}/`, route.path), requestUrl.pathname);
+          return route.method === request.method && isPathMatching(join(route.prefix, `/${route.version ? `v${route.version}` : ""}/`, route.path), requestUrl.pathname);
         }) || fallbackRoute;
         
         let state = httpServerOptions.initialState;
         const requestUrl = new URL(`http://${request.headers.host || "127.0.0.1"}${request.url}`);
-        const parameters = getPathParameters(join(`/v${foundRoute.version}/`, foundRoute.path), requestUrl.pathname);
-        const fields = Object.fromEntries([...requestUrl.searchParams]);
+        const parameters = getPathParameters(join(foundRoute.prefix, `/${foundRoute.version ? `v${foundRoute.version}` : ""}/`, foundRoute.path), requestUrl.pathname);
+        const queries = Object.fromEntries([...requestUrl.searchParams]);
         const hash = requestUrl.hash;
 
         for (const middleware of [...httpServerOptions.middlewares, ...foundRoute.middlewares]) {
-          const middlewareResponse = await middleware.response({request, state, parameters, fields, hash});
+          const middlewareResponse = await middleware.response({request, state, parameters, queries, hash});
 
           if (!middlewareResponse.next) {
             return response.writeHead(HTTP_STATUS[middlewareResponse.status]).end(middlewareResponse.body);
@@ -275,7 +276,7 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
           return response.writeHead(404).end("Not found");
         }
 
-        const foundRouteResponse = await foundRoute.response({request, state, parameters, fields, hash});
+        const foundRouteResponse = await foundRoute.response({request, state, parameters, queries, hash});
         return response.writeHead(HTTP_STATUS[foundRouteResponse.status], foundRouteResponse.headers).end(foundRouteResponse.body);
       }).listen(startHttpServerOptions.port, startHttpServerOptions.host, () => {
         resolve();
