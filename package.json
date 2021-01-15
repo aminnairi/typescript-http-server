@@ -5,7 +5,7 @@
   "homepage": "https://github.com/aminnairi/typescript-http-server#readme",
   "license": "MIT",
   "files": [
-    "typescript-http-server.ts"
+    "index.ts"
   ],
   "bugs": {
     "url": "https://github.com/aminnairi/typescript-http-server/issues"
