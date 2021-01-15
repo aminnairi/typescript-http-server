@@ -5,8 +5,11 @@ const {startHttpServer} = createHttpServer({
   middlewares: [],
   routes: [
     {
+      // http://127.0.0.1:7000/v1/ping
       // http://127.0.0.1:8000/v1/ping
+      // http://127.0.0.1:9000/v1/ping
       name: "Ping",
+      prefix: "",
       version: 1,
       path: "/ping",
       method: "GET",

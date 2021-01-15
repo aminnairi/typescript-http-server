@@ -21,6 +21,7 @@ const {startHttpServer} = createHttpServer({
     {
       // http://127.0.0.1:8000/v1/ping
       version: 1,
+      prefix: "",
       path: "/ping",
       name: "Ping",
       method: "GET",

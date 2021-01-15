@@ -30,6 +30,7 @@ const {startHttpServer} = createHttpServer({
     {
       // http://127.0.0.1:8000/v1/ping
       name: "Lucky number",
+      prefix: "",
       version: 1,
       path: "/number/lucky",
       method: "GET",

@@ -22,6 +22,7 @@ const main = async () => {
       {
         // http://127.0.0.1:8000/v1/test
         version: 1,
+        prefix: "",
         name: "Test",
         path: "/test",
         method: "GET",
