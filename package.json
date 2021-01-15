@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Typescript library for declaratively creating a HTTP server.",
   "homepage": "https://github.com/aminnairi/typescript-http-server#readme",
-  "main": "main.ts",
+  "lib": "main.ts",
   "license": "MIT",
   "files": [
     "main.ts"
