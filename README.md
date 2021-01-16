@@ -46,9 +46,3 @@ See [`CHANGELOG.md`](./CHANGELOG.md).
 ## Contributing
 
 See [`CONTRIBUTING.md`](./CONTRIBUTING.md).
-
-## TODO
-
-- Custom `join` function.
-- merge the prefix
-- merge 
