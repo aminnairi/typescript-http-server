@@ -2,6 +2,8 @@
 
 Typescript library for declaratively creating a HTTP server.
 
+![Package](https://github.com/aminnairi/typescript-http-server/workflows/Package/badge.svg)
+
 ## Requirements
 
 - [Node.js](https://nodejs.org/en/)
