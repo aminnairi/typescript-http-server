@@ -17,20 +17,11 @@ jobs:
       - name: Install the dependencies
         run: npm install
 
-      - name: Build the library
+      - name: Build the package
         run: npm run build
-
-      - name: Stage any changes
-        run: git add .
-
-      - name: Commit any changes
-        run: 'git commit --message ":package: new library build" || true'
-
-      - name: Push any changes
-        run: git push
 
       - name: GitHub registry authentication
         run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
 
-      - name: Publish any new version
+      - name: Publish the package
         run: 'npm publish || true'
