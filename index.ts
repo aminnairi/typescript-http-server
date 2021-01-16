@@ -259,6 +259,7 @@ const allRoutes = <HttpServerState>(routes: Array<HttpServerRoute<HttpServerStat
           return {
             ...child,
             middlewares: [...route.middlewares, ...child.middlewares],
+            prefix: joinPaths([route.prefix, child.prefix]),
             path: joinPaths([route.path, child.path])
           };
         }))
