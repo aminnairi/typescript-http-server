@@ -21,7 +21,7 @@ jobs:
         run: git add .
 
       - name: Commit any changes
-        run: git commit --message ":package: new library build" || true
+        run: 'git commit --message ":package: new library build" || true'
 
       - name: Push any changes
         run: git push
