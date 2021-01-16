@@ -4,8 +4,13 @@ Typescript library for declaratively creating a HTTP server.
 
 ![Package](https://github.com/aminnairi/typescript-http-server/workflows/Package/badge.svg)
 
+## Warning
+
+> *Do not use this library without TypeScript since there are no JavaScript runtime type checking made when using this library after transpilation. Use it at your own risks!*
+
 ## Requirements
 
+- [TypeScript](https://www.typescriptlang.org/)
 - [Node.js](https://nodejs.org/en/)
 - [NPM](https://www.npmjs.com/)
 
