@@ -1,6 +1,5 @@
 import {URL} from "url";
 import {createServer, IncomingMessage} from "http";
-import {join} from "path";
 
 type HttpServerRouteResponseStatus
   = "CONTINUE"
@@ -132,6 +131,14 @@ interface StartHttpServerOptions {
   host: string;
 }
 
+const joinPaths = (paths: string[]): string => {
+    const separator = "/";
+    const joinedPaths = paths.join(separator);
+    const normalizedPaths = `${separator}${joinedPaths}${separator}`.replace(new RegExp(`${separator}{1,}`, "gu"), separator);
+
+    return normalizedPaths;
+};
+
 const trimLeft = (character: string, text: string) => {
   if (text.startsWith(character)) {
     return text.slice(1);
@@ -252,7 +259,7 @@ const allRoutes = <HttpServerState>(routes: Array<HttpServerRoute<HttpServerStat
           return {
             ...child,
             middlewares: [...route.middlewares, ...child.middlewares],
-            path: join(route.path, child.path)
+            path: joinPaths([route.path, child.path])
           };
         }))
       ];
@@ -276,12 +283,13 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
           }
 
           const requestUrl = new URL(`http://${request.headers.host || "localhost"}${request.url}`);
-          return route.method === request.method && isPathMatching(join(route.prefix, `/${route.version ? `v${route.version}` : ""}/`, route.path), requestUrl.pathname);
+          return route.method === request.method && isPathMatching(joinPaths([route.prefix, `/${route.version ? `v${route.version}` : ""}/`, route.path]), requestUrl.pathname);
         }) || fallbackRoute;
         
         let state = httpServerOptions.initialState;
+
         const requestUrl = new URL(`http://${request.headers.host || "127.0.0.1"}${request.url}`);
-        const parameters = getPathParameters(join(foundRoute.prefix, `/${foundRoute.version ? `v${foundRoute.version}` : ""}/`, foundRoute.path), requestUrl.pathname);
+        const parameters = getPathParameters(joinPaths([foundRoute.prefix, `/${foundRoute.version ? `v${foundRoute.version}` : ""}/`, foundRoute.path]), requestUrl.pathname);
         const queries = Object.fromEntries([...requestUrl.searchParams]);
         const hash = requestUrl.hash;
 
