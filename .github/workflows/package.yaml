@@ -1,0 +1,30 @@
+name: Package
+
+on:
+  push:
+    branches:
+      - latest
+
+jobs:
+  package:
+    name: Package the module
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@v2
+
+      - name: Build the library
+        run: npm run build
+
+      - name: Stage any changes
+        run: git add .
+
+      - name: Commit any changes
+        run: git commit --message ":package: new library build" || true
+
+      - name: Push any changes
+        run: git push
+
+      - name: Publish any new version
+        run: npm publish
