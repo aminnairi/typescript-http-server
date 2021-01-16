@@ -4,9 +4,9 @@
   "description": "Typescript library for declaratively creating a HTTP server.",
   "homepage": "https://github.com/aminnairi/typescript-http-server#readme",
   "license": "MIT",
+  "lib": "library",
   "files": [
-    "library",
-    "index.ts"
+    "library"
   ],
   "bugs": {
     "url": "https://github.com/aminnairi/typescript-http-server/issues"
@@ -15,6 +15,9 @@
     "type": "git",
     "url": "https://github.com/aminnairi/typescript-http-server.git",
     "directory": "."
+  },
+  "scripts": {
+    "build": "tsc"
   },
   "peerDependencies": {
     "typescript": "^4.0.0",
