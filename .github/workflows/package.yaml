@@ -29,5 +29,8 @@ jobs:
       - name: Push any changes
         run: git push
 
+      - name: GitHub registry authentication
+        run: echo "//npm.pkg.github.com/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+
       - name: Publish any new version
         run: npm publish
