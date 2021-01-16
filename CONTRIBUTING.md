@@ -2,11 +2,11 @@
 
 ## Requirements
 
-- Git
-- GitHub CLI
-- Docker
-- Docker Compose
-- GNU/Make
+- [Git]()
+- [GitHub CLI]()
+- [Docker]()
+- [Docker Compose]()
+- [GNU/Make]()
 
 ## Installation
 
@@ -40,34 +40,26 @@ Where `branch-name` is the name of the branch to create. Choose a branch name th
 ## Dependencies
 
 ```console
-$ make install
+$ npm install
 ```
 
-## NPM
-
-```console
-$ docker-compose run --rm npm COMMAND
-```
-
-Where `COMMAND` is the command to run with NPM.
-
-## NPX
-
-```console
-$ docker-compose run --rm --service-ports npx ts-node example/simple.ts
-```
-
-## Update
+## Resolution
 
 Update the project until the issue is resolved.
 
 ## Tests
 
 ```console
-$ docker-compose run --rm npx ts-node example/FILE
+$ npx ts-node example/FILE
 ```
 
 Where `FILE` is the name of one of the files in the [`example`](./example) folder.
+
+## Build
+
+```console
+$ npm run build
+```
 
 ## Stage
 
