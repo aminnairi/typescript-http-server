@@ -2,16 +2,15 @@
 
 ## Requirements
 
-- [Git]()
-- [GitHub CLI]()
-- [Docker]()
-- [Docker Compose]()
-- [GNU/Make]()
+- [Git](https://git-scm.com/)
+- [GitHub CLI](https://cli.github.com/)
+- [Node.js](https://nodejs.org/en/)
+- [NPM](https://www.npmjs.com/)
 
 ## Installation
 
 ```console
-$ git clone https://github.com/
+$ git clone https://github.com/aminnairi/typescript-http-server
 ```
 
 ## Fork
