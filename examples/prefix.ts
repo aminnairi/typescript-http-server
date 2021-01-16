@@ -1,4 +1,4 @@
-import {createHttpServer} from "@aminnairi/typescript-http-server";
+import {createHttpServer} from "../index";
 
 const {startHttpServer} = createHttpServer({
   initialState: null,
@@ -6,7 +6,7 @@ const {startHttpServer} = createHttpServer({
   routes: [
     {
       // http://127.0.0.1:8000/users
-      name: "Ping",
+      name: "Home",
       prefix: "",
       version: 0,
       path: "/users",
@@ -59,33 +59,32 @@ const {startHttpServer} = createHttpServer({
     },
     {
       // http://127.0.0.1:8000/api/v1/users
-      name: "Ping",
+      name: "Api",
       prefix: "/api",
-      version: 1,
+      version: 2,
       path: "/users",
       method: "GET",
-      children: [],
-      middlewares: [
+      children: [
         {
-          name: "Accept",
-          response: ({request: {headers: {accept}}, state}) => {
-            if (accept === "application/json") {
-              return {
-                next: true,
-                state
-              };
-            }
-
-            return {
-              next: false,
-              status: "BAD_REQUEST",
-              headers: {
-                "Content-Type": "text/plain"
-              },
-              body: "You should accept application/json responses in order to request this url"
-            };
-          }
+          // http://127.0.0.1/api/admin/v1/users
+          name: "Admin",
+          prefix: "/admin",
+          version: 2,
+          path: "/",
+          method: "GET",
+          children: [],
+          middlewares: [],
+          response: () => ({
+            status: "OK",
+            headers: {
+              "Content-Type": "text/plain"
+            },
+            body: "Admin only"
+          })
         }
+      ],
+      middlewares: [
+
       ],
       response: () => ({
         status: "OK",
@@ -119,7 +118,7 @@ const {startHttpServer} = createHttpServer({
 });
 
 const main = async () => {
-  const port = 8000;
+  const port = 8080;
   const host = "127.0.0.1";
 
   await startHttpServer({
