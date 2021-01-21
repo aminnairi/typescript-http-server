@@ -1,5 +1,5 @@
 import {URL} from "url";
-import {createServer, IncomingMessage} from "http";
+import {createServer, IncomingMessage, Server} from "http";
 
 type HttpServerRouteResponseStatus
   = "CONTINUE"
@@ -272,8 +272,8 @@ const allRoutes = <HttpServerState>(routes: Array<HttpServerRoute<HttpServerStat
 
 export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<HttpServerOptions<HttpServerState>>) => {
   const startHttpServer = (startHttpServerOptions: Readonly<StartHttpServerOptions>) => {
-    return new Promise<void>(resolve => {
-      createServer(async (request, response) => {
+    return new Promise<Server>(resolve => {
+      const server: Server = createServer(async (request, response) => {
         const fallbackRoute = {prefix: "", name: "Not found", version: 0, path: request.url || "", method: "GET", middlewares: [], response: httpServerOptions.fallback};
 
         const flattenRoutes = allRoutes(httpServerOptions.routes);
@@ -311,7 +311,7 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
         const foundRouteResponse = await foundRoute.response({request, state, parameters, queries, hash});
         return response.writeHead(HTTP_STATUS[foundRouteResponse.status], foundRouteResponse.headers).end(foundRouteResponse.body);
       }).listen(startHttpServerOptions.port, startHttpServerOptions.host, () => {
-        resolve();
+        resolve(server);
       });
     });
   };
