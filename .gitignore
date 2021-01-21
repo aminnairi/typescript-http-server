@@ -4,3 +4,4 @@
 /.cache
 /database.db
 /library
+/.nyc_output
