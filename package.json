@@ -1,6 +1,6 @@
 {
   "name": "@aminnairi/typescript-http-server",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Typescript library for declaratively creating a HTTP server.",
   "homepage": "https://github.com/aminnairi/typescript-http-server#readme",
   "license": "MIT",
