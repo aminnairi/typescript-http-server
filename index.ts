@@ -77,14 +77,10 @@ interface HttpServerRouteResponseOptions<HttpServerState> {
   body: string;
 }
 
-interface HttpServerRouteResponseHeaders {
-  [key: string]: string;
-}
-
 interface HttpServerRouteResponse {
   status: HttpServerRouteResponseStatus;
   body: string;
-  headers: HttpServerRouteResponseHeaders;
+  headers: Record<string, string>;
 }
 
 interface HttpServerRoute<HttpServerState> {
