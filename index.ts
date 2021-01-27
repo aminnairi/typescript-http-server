@@ -74,6 +74,7 @@ interface HttpServerRouteResponseOptions<HttpServerState> {
   parameters: Readonly<Record<string, string>>;
   queries: Readonly<Record<string, string>>;
   hash: Readonly<string>;
+  body: string;
 }
 
 interface HttpServerRouteResponseHeaders {
@@ -103,6 +104,7 @@ interface HttpServerMiddlewareResponseOptions<HttpServerState> {
   parameters: Readonly<Record<string, string>>;
   queries: Readonly<Record<string, string>>;
   hash: Readonly<string>;
+  body: string;
 }
 
 interface HttpServerMiddlewareResponseNext<HttpServerState> {
@@ -248,7 +250,6 @@ const HTTP_STATUS: Record<HttpServerRouteResponseStatus, number> = {
   NOT_EXTENDED: 510,
   NETWORK_AUTHENTICATION_REQUIRED: 511
 };
-
 const allRoutes = <HttpServerState>(routes: Array<HttpServerRoute<HttpServerState>>) => {
   return routes.reduce((previousRoutes: Array<HttpServerRoute<HttpServerState>>, route: HttpServerRoute<HttpServerState>): Array<HttpServerRoute<HttpServerState>> => {
     if (route.children.length > 0) {
@@ -268,6 +269,22 @@ const allRoutes = <HttpServerState>(routes: Array<HttpServerRoute<HttpServerStat
 
     return [...previousRoutes, route];
   }, [] as Array<HttpServerRoute<HttpServerState>>);
+};
+
+const getRequestBody = (request: Readonly<IncomingMessage>): Promise<string> => {
+  return new Promise(resolve => {
+    let body = "";
+
+    request.on("data", (data: Buffer): void => {
+      body += data.toString();
+    });
+
+    request.on("error", () => resolve(body));
+
+    request.on("end", () => {
+      resolve(body);
+    });
+  });
 };
 
 export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<HttpServerOptions<HttpServerState>>) => {
@@ -293,9 +310,10 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
         const parameters = getPathParameters(joinPaths([foundRoute.prefix, `/${foundRoute.version ? `v${foundRoute.version}` : ""}/`, foundRoute.path]), requestUrl.pathname);
         const queries = Object.fromEntries([...requestUrl.searchParams]);
         const hash = requestUrl.hash;
+        const body = await getRequestBody(request);
 
         for (const middleware of [...httpServerOptions.middlewares, ...foundRoute.middlewares]) {
-          const middlewareResponse = await middleware.response({request, state, parameters, queries, hash});
+          const middlewareResponse = await middleware.response({request, state, parameters, queries, hash, body});
 
           if (!middlewareResponse.next) {
             return response.writeHead(HTTP_STATUS[middlewareResponse.status]).end(middlewareResponse.body);
@@ -308,7 +326,7 @@ export const createHttpServer = <HttpServerState>(httpServerOptions: Readonly<Ht
           return response.writeHead(404).end("Not found");
         }
 
-        const foundRouteResponse = await foundRoute.response({request, state, parameters, queries, hash});
+        const foundRouteResponse = await foundRoute.response({request, state, parameters, queries, hash, body});
         return response.writeHead(HTTP_STATUS[foundRouteResponse.status], foundRouteResponse.headers).end(foundRouteResponse.body);
       }).listen(startHttpServerOptions.port, startHttpServerOptions.host, () => {
         resolve(server);
